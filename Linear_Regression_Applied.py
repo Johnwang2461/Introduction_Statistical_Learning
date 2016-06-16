@@ -131,11 +131,40 @@ squaredX = np.reshape(squaredMauto, (len(squaredMauto), 7))
 squaredY = np.reshape(auto['mpg'], (len(auto),1))
 squared_regr.fit(squaredX,squaredY)
 
-print ('Columns: ', squaredMauto.columns.values.tolist())
-print('Intercepts: ', squared_regr.intercept_)
-print('Coefficients: ', squared_regr.coef_)
-# The mean square error
-print("Residual sum of squares: %.2f"
-      % np.mean((squared_regr.predict(squaredX) - squaredY) ** 2))
-# Explained variance score: 1 is perfect prediction
-print('Variance score: %.2f' % squared_regr.score(squaredX, squaredY))
+# print ('Columns: ', squaredMauto.columns.values.tolist())
+# print('Intercepts: ', squared_regr.intercept_)
+# print('Coefficients: ', squared_regr.coef_)
+# # The mean square error
+# print("Residual sum of squares: %.2f"
+#       % np.mean((squared_regr.predict(squaredX) - squaredY) ** 2))
+# # Explained variance score: 1 is perfect prediction
+# print('Variance score: %.2f' % squared_regr.score(squaredX, squaredY))
+
+#Load Boston Dataset
+from sklearn.datasets import load_boston
+boston = load_boston()
+columns = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV']
+boston = pd.DataFrame(data=np.column_stack([boston.data, boston.target]), columns=columns)
+
+#Simple Linear Regressions
+CRIMregr = linear_model.LinearRegression()
+ZNX = np.reshape(boston['ZN'], (len(boston),1))
+CRIMY = np.reshape(boston['CRIM'], (len(boston),1))
+
+CRIMregr.fit(ZNX,CRIMY)
+# print ('Column Descriptor: ', 'proportion of residential land zoned for lots over 25,000 sq.ft')
+# print ('Intercepts: ', CRIMregr.intercept_)
+# print ('Coefficients: ', CRIMregr.coef_)
+# print ('Residual sum of squares: ', np.mean((CRIMregr.predict(ZNX)-CRIMY) ** 2))
+# print ('Variance Score: ', CRIMregr.score(ZNX, CRIMY))
+
+CRIMregr = linear_model.LinearRegression()
+CHASX = np.reshape(boston['CHAS'], (len(boston),1))
+CRIMY = np.reshape(boston['CRIM'], (len(boston),1))
+
+CRIMregr.fit(CHASX,CRIMY)
+print ('Column Descriptor: ', 'Charles River dummy variable (= 1 if tract bounds river; 0 otherwise) ')
+print ('Intercepts: ', CRIMregr.intercept_)
+print ('Coefficients: ', CRIMregr.coef_)
+print ('Residual sum of squares: ', np.mean((CRIMregr.predict(CHASX)-CRIMY) ** 2))
+print ('Variance Score: ', CRIMregr.score(CHASX, CRIMY))
