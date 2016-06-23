@@ -10,10 +10,6 @@ from sklearn.pipeline import make_pipeline
 college = pd.read_csv("College.csv")
 apps = np.reshape(college['Apps'], (len(college), 1))
 college = college.drop(['Apps','Unnamed: 0','Private'],1)
-# #First scale the data so that each feature has zero mean and unit standard deviations
-# college = preprocessing.scale(college)
-# apps = preprocessing.scale(apps)
-
 
 # Splitting data into a training and a test set
 np.random.seed(11)
@@ -22,8 +18,8 @@ X_train, X_test, y_train, y_test = cross_validation.train_test_split(college, ap
 #Least Squares Regression
 lsregr = linear_model.LinearRegression()
 lsregr.fit(X_train,y_train)
-MSE = np.mean((lsregr.predict(X_test)-y_test) ** 2)
-# print "Mean Squared Error: ", RSS
+MSE_LS = np.mean((lsregr.predict(X_test)-y_test) ** 2)
+# print "Mean Squared Error: ", MSE_LS
 
 # Ridge Regression
 
@@ -40,44 +36,86 @@ rregr.fit(X_train,y_train)
 # Tracking the average Cross Validation MSE values for each alpha
 lowest_CV = 10000000
 lowest_CV_alpha = 0
-# for CV_group in range(0,int(round((stop-start)/step)), 1):
-#     a = np.zeros(shape=(len(X_train),1))
-#     temp = 0
-#     for i in range(0,(int(len(rregr.cv_values_)*(round((stop-start)/step)))),1):
-#         if i%(int(round((stop-start)/step))) == CV_group:
-#             a[temp] = rregr.cv_values_.flat[i]
-#             temp += 1
-#     print np.mean(a)
-#     if lowest_CV > np.mean(a):
-#         lowest_CV = np.mean(a)
-#         lowest_CV_alpha = start + step*CV_group
+for CV_group in range(0,int(round((stop-start)/step)), 1):
+    a = np.zeros(shape=(len(X_train),1))
+    temp = 0
+    for i in range(0,(int(len(rregr.cv_values_)*(round((stop-start)/step)))),1):
+        if i%(int(round((stop-start)/step))) == CV_group:
+            a[temp] = rregr.cv_values_.flat[i]
+            temp += 1
+    if lowest_CV > np.mean(a):
+        lowest_CV = np.mean(a)
+        lowest_CV_alpha = start + step*CV_group
 # print "Alpha Value Corresponding to Lowest CV: ", lowest_CV_alpha
 # print "Lowest CV: ",lowest_CV
 
 #Ridge Regression with optimized Alpha Value
 rregr = linear_model.Ridge(alpha=lowest_CV_alpha, normalize=True)
 rregr.fit(X_train, y_train)
-MSE = np.mean((rregr.predict(X_test)-y_test)**2)
-# print "Mean Squared Error: ", RSS
+MSE_R = np.mean((rregr.predict(X_test)-y_test)**2)
+# print "Mean Squared Error: ", MSE_R
 
 #Lasso Regress
+from sklearn.preprocessing import scale
 
-#Alpha Value Ranges
-start = 1
-stop = 2
-step = 1
-alpha = np.arange(start,stop,step)
+X_train_scaled = scale(X_train)
+X_test_scaled = scale(X_test)
 
-#Performing the Lasso Regression and Acquiring Cross-validation MSEs.
-laregr = linear_model.LassoCV(alphas=alpha, cv=len(X_train), random_state=0)
-laregr.fit(X_train,y_train)
-laregr.mse_path_= laregr.mse_path_.transpose()
+# laregr = linear_model.LassoCV(eps=10**-12, cv=len(X_train),selection='random', random_state=0)
+# laregr.fit(X_train,y_train)
+# lowest_CV_alpha = laregr.alpha_
+# print lowest_CV_alpha
+# print "Coefficient Values: ", laregr.coef_
+# MSE_LA = np.mean((laregr.predict(X_test)-y_test)**2)
+# print "Number of Coefficients: 3"
+# print "Mean Squared Error: ", MSE_LA
+# print laregr.mse_path_
 
-# Tracking the average Cross Validation MSE values for each alpha
-lowest_CV = 10000000
-lowest_CV_alpha = 0
+# laregr = linear_model.Lasso(alpha = lowest_CV_alpha, normalize=True, random_state=0)
+# laregr.fit(X_train,y_train)
+# MSE_LA = np.mean((laregr.predict(X_test)-y_test)**2)
+#
+# print "Coefficient Values: ", laregr.coef_
+# MSE_LA = np.mean((laregr.predict(X_test)-y_test)**2)
+# print "Number of Coefficients: 3"
+# print "Mean Squared Error: ", MSE_LA
 
+# cv_outer = cross_validation.KFold(len(X_train), n_folds=5)
+# lasso = linear_model.LassoCV(cv=3)
+# scores = -1*cross_validation.cross_val_score(lasso, X_train, y_train, cv=cv_outer, scoring='mean_squared_error')
+# print scores
 
+# lasso = linear_model.Lasso()
+# alphas = np.arange(.001, 6, .001)
+# scores = {}
+#
+# for alpha in alphas:
+#     lasso.alpha = alpha
+#     this_scores = -1*cross_validation.cross_val_score(lasso, X_train_scaled, y_train, n_jobs=1, scoring='mean_squared_error')
+#     scores[alpha] = np.mean(this_scores)
+#
+# lowest_CV_alpha = min(scores, key=scores.get)
+# print lowest_CV_alpha
+# laregr = linear_model.Lasso(alpha = lowest_CV_alpha, normalize=True, random_state=0)
+# laregr.fit(X_train_scaled,y_train)
+# MSE_LA = np.mean((laregr.predict(X_test_scaled)-y_test)**2)
+#
+# print "Coefficient Values: ", laregr.coef_
+# print "Number of Coefficients: 3"
+# print "Mean Squared Error: ", MSE_LA
+
+# #Alpha Value Ranges
+# start, stop, step = 1, 2, 1
+# alpha = np.arange(start,stop,step)
+#
+# #Performing the Lasso Regression and Acquiring Cross-validation MSEs.
+# laregr = linear_model.LassoCV(alphas=alpha, cv=len(X_train), random_state=0)
+# laregr.fit(X_train,y_train)
+# laregr.mse_path_= laregr.mse_path_.transpose()
+#
+# # Tracking the average Cross Validation MSE values for each alpha
+# lowest_CV = 10000000
+# lowest_CV_alpha = 0
 # for CV_group in range(0,int(round((stop-start)/step)), 1):
 #     a = np.zeros(shape=(len(X_train),1))
 #     temp = 0
@@ -94,8 +132,10 @@ lowest_CV_alpha = 0
 # #Lasso Regression with optimized Alpha Value
 # laregr = linear_model.Lasso(alpha = lowest_CV_alpha, normalize=True)
 # laregr.fit(X_train,y_train)
-# MSE = np.mean((laregr.predict(X_test)-y_test)**2)
-# print "Mean Squared Error: ", RSS
+# MSE_LA = np.mean((laregr.predict(X_test)-y_test)**2)
+# # print "Coefficient Values: ", laregr.coef_
+# # print "Number of Coefficients: 13"
+# print "Mean Squared Error: ", MSE_LA
 
 #Principal Components Regression
 from sklearn.decomposition import PCA
@@ -105,13 +145,7 @@ X_train_scaled = scale(X_train)
 pca = PCA(n_components='mle')
 pca.fit(X_train_scaled,y_train)
 
-# print "Principal axes in feature space, representing the directions of the maximum variance in the data: \n", pca.components_
-# print "Percentage of variance explained by each of the selected components. If n_components is not set, then all components are stored and the sum of explained variance is equal to 1.0: \n",pca.explained_variance_ratio_
-# print "Per-feature empirical mean, estimated from the training set: \n",pca.mean_
-print "The estimated number of components. Relevant when n_components is set to 'mle' or a number between 0 and 1 to select using explained variance: \n",pca.n_components
-# print "The estimated noise covariance following the Probabilistic PCA model: \n",pca.noise_variance_
-
-print "Variance (% cumulative) explained by principal components: \n", np.cumsum(np.round(pca.explained_variance_ratio_, decimals=4)*100), "\n"
+# print "Variance (% cumulative) explained by principal components: \n", np.cumsum(np.round(pca.explained_variance_ratio_, decimals=4)*100), "\n"
 
 #Cross validation for PCR:
 n = len(X_train_scaled)
@@ -127,18 +161,19 @@ for i in np.arange(1,17):
     score = -1*cross_validation.cross_val_score(pcrregr, X_train_scaled[:,:i], y_train.ravel(), cv=kf_10, scoring='mean_squared_error').mean()
     mse.append(score)
 
-print "Mean Squared Error CV: ", mse
-# fig, (ax1, ax2) = plt.subplots(1,2, figsize=(12,5))
-# ax1.plot(mse, '-v')
-# ax2.plot([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], mse[1:17], '-v')
-# ax2.set_title('Intercept excluded from plot')
-#
-# for ax in fig.axes:
-#     ax.set_xlabel('Number of principal components in regression')
-#     ax.set_ylabel('MSE')
-#     ax.set_xlim((-0.2,17.2))
+# print "Mean Squared Error CV: ", mse
+fig, (ax1, ax2) = plt.subplots(1,2, figsize=(12,5))
+ax1.plot(mse, '-v')
+ax2.plot([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], mse[1:17], '-v')
+ax2.set_title('Intercept excluded from plot')
+
+for ax in fig.axes:
+    ax.set_xlabel('Number of principal components in regression')
+    ax.set_ylabel('MSE')
+    ax.set_xlim((-0.2,17.2))
 
 # plt.show()
+
 #Based off of the plot, 8 principal components seem to minimize test error.
 X_test_scaled = scale(X_test)
 pca_test = PCA(n_components=8)
@@ -150,12 +185,57 @@ mse = []
 for i in np.arange(1,9):
     score = -1*cross_validation.cross_val_score(pcrregr, X_test_scaled[:,:i], y_test.ravel(), cv=len(X_test_scaled), scoring='mean_squared_error').mean()
     mse.append(score)
+MSE_PCA = mse[7]
+# print "Mean Squared Error: ",MSE_PCA
+#
+# plt.plot([1,2,3,4,5,6,7,8], mse[0:8], '-v')
+# plt.title('PCA: MSE vs. Principal Components')
+# plt.xlabel('Number of principal components in regression')
+# plt.ylabel('MSE')
+# plt.xlim((-0.2,8.2))
+# plt.show()
 
-print "Mean Squared Error: ",mse[7]
+#Partial Least Squares Regression
+from sklearn.cross_decomposition import PLSRegression
+from sklearn.preprocessing import scale
 
-plt.plot([1,2,3,4,5,6,7,8], mse[0:8], '-v')
-plt.title('PCA: MSE vs. Principal Components')
-plt.xlabel('Number of principal components in regression')
+X_train_scaled = scale(X_train)
+X_test_scaled = scale(X_test)
+
+#Performing Cross_Validation for PLS
+mse = []
+n=  len(X_train_scaled)
+kf_10 = cross_validation.KFold(n,n_folds=10, shuffle=True, random_state=0)
+
+for i in np.arange(1,17):
+    plsregr = PLSRegression(n_components=i, scale=False)
+    plsregr.fit(X_train_scaled,y_train)
+    score = -1*cross_validation.cross_val_score(plsregr, X_train_scaled, y_train, cv=kf_10, scoring='mean_squared_error').mean()
+    mse.append(score)
+
+plt.plot(np.arange(1,17), np.array(mse), '-v')
+plt.title("PLS: MSE vs. Principal Components")
+plt.xlabel('Number of principal components in PLS regression')
 plt.ylabel('MSE')
-plt.xlim((-0.2,8.2))
-plt.show()
+plt.xlim((-0.2, 17.2))
+
+#Based off of the plot, 12 principal components minimized MSE
+plsregr_test = PLSRegression(n_components=12, scale=False)
+plsregr_test.fit(X_train_scaled, y_train)
+MSE_PLS = np.mean((plsregr_test.predict(X_test_scaled) - y_test) ** 2)
+# print "Mean Squared Error: ", MSE_PLS
+
+#Compare the results from above. We use (R)^2 for all models
+Test_avg= np.mean(y_test)
+
+LS_R2 = 1 - MSE_LS/(np.mean((Test_avg-y_test)**2))
+R_R2 = 1 - MSE_R/(np.mean((Test_avg-y_test)**2))
+LA_R2 = 1 - MSE_LA/(np.mean((Test_avg-y_test)**2))
+PCA_R2 = 1 - MSE_PCA/(np.mean((Test_avg-y_test)**2))
+PLS_R2 = 1 - MSE_PLS/(np.mean((Test_avg-y_test)**2))
+
+print "Least Squares Regression (R)^2: ", LS_R2
+print "Ridge Regression (R)^2: ", R_R2
+print "Lasso Regression (R)^2: ", LA_R2
+print "Principal Component Analysis Regression (R)^2: ", PCA_R2
+print "Partial Least Squares Regression (R)^2: ", PLS_R2
