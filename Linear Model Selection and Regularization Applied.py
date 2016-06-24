@@ -9,7 +9,10 @@ from sklearn.pipeline import make_pipeline
 
 college = pd.read_csv("College.csv")
 apps = np.reshape(college['Apps'], (len(college), 1))
-college = college.drop(['Apps','Unnamed: 0','Private'],1)
+college = college.drop(['Apps','Unnamed: 0'],1)
+
+#Create dummy variables for private: 0 = Yes, 1 = No
+college['Private'] = pd.get_dummies(college['Private'])
 
 # Splitting data into a training and a test set
 np.random.seed(11)
@@ -24,7 +27,7 @@ MSE_LS = np.mean((lsregr.predict(X_test)-y_test) ** 2)
 # Ridge Regression
 
 #Alpha Value Ranges
-start = .001
+start = 0.001
 stop = .004
 step = .001
 alpha = np.arange(start,stop,step)
@@ -60,82 +63,21 @@ from sklearn.preprocessing import scale
 
 X_train_scaled = scale(X_train)
 X_test_scaled = scale(X_test)
+y_train_scaled = scale(y_train)
+y_test_scaled = scale(y_test)
 
-# laregr = linear_model.LassoCV(eps=10**-12, cv=len(X_train),selection='random', random_state=0)
-# laregr.fit(X_train,y_train)
-# lowest_CV_alpha = laregr.alpha_
-# print lowest_CV_alpha
-# print "Coefficient Values: ", laregr.coef_
-# MSE_LA = np.mean((laregr.predict(X_test)-y_test)**2)
-# print "Number of Coefficients: 3"
-# print "Mean Squared Error: ", MSE_LA
-# print laregr.mse_path_
+laregr = linear_model.LassoCV(eps=10**-12, cv=len(X_train_scaled),selection='random', random_state=0, fit_intercept=False)
+laregr.fit(X_train_scaled,y_train)
+lowest_CV_alpha = laregr.alpha_
 
-# laregr = linear_model.Lasso(alpha = lowest_CV_alpha, normalize=True, random_state=0)
-# laregr.fit(X_train,y_train)
-# MSE_LA = np.mean((laregr.predict(X_test)-y_test)**2)
-#
-# print "Coefficient Values: ", laregr.coef_
-# MSE_LA = np.mean((laregr.predict(X_test)-y_test)**2)
-# print "Number of Coefficients: 3"
-# print "Mean Squared Error: ", MSE_LA
+laregr = linear_model.Lasso(alpha = 100.2, random_state=0, fit_intercept=False)
+laregr.fit(X_train_scaled,y_train)
+MSE_LA = np.mean((laregr.predict(X_test_scaled)-y_test)**2)
 
-# cv_outer = cross_validation.KFold(len(X_train), n_folds=5)
-# lasso = linear_model.LassoCV(cv=3)
-# scores = -1*cross_validation.cross_val_score(lasso, X_train, y_train, cv=cv_outer, scoring='mean_squared_error')
-# print scores
-
-# lasso = linear_model.Lasso()
-# alphas = np.arange(.001, 6, .001)
-# scores = {}
-#
-# for alpha in alphas:
-#     lasso.alpha = alpha
-#     this_scores = -1*cross_validation.cross_val_score(lasso, X_train_scaled, y_train, n_jobs=1, scoring='mean_squared_error')
-#     scores[alpha] = np.mean(this_scores)
-#
-# lowest_CV_alpha = min(scores, key=scores.get)
-# print lowest_CV_alpha
-# laregr = linear_model.Lasso(alpha = lowest_CV_alpha, normalize=True, random_state=0)
-# laregr.fit(X_train_scaled,y_train)
-# MSE_LA = np.mean((laregr.predict(X_test_scaled)-y_test)**2)
-#
-# print "Coefficient Values: ", laregr.coef_
-# print "Number of Coefficients: 3"
-# print "Mean Squared Error: ", MSE_LA
-
-# #Alpha Value Ranges
-# start, stop, step = 1, 2, 1
-# alpha = np.arange(start,stop,step)
-#
-# #Performing the Lasso Regression and Acquiring Cross-validation MSEs.
-# laregr = linear_model.LassoCV(alphas=alpha, cv=len(X_train), random_state=0)
-# laregr.fit(X_train,y_train)
-# laregr.mse_path_= laregr.mse_path_.transpose()
-#
-# # Tracking the average Cross Validation MSE values for each alpha
-# lowest_CV = 10000000
-# lowest_CV_alpha = 0
-# for CV_group in range(0,int(round((stop-start)/step)), 1):
-#     a = np.zeros(shape=(len(X_train),1))
-#     temp = 0
-#     for i in range(0,(int(len(laregr.mse_path_)*(round((stop-start)/step)))),1):
-#         if i%(int(round((stop-start)/step))) == CV_group:
-#             a[temp] = laregr.mse_path_.flat[i]
-#             temp += 1
-#     if lowest_CV > np.mean(a):
-#         lowest_CV = np.mean(a)
-#         lowest_CV_alpha = start + step*CV_group
-# print "Alpha Value Corresponding to Lowest CV: ", lowest_CV_alpha
-# print "Lowest CV: ",lowest_CV
-#
-# #Lasso Regression with optimized Alpha Value
-# laregr = linear_model.Lasso(alpha = lowest_CV_alpha, normalize=True)
-# laregr.fit(X_train,y_train)
-# MSE_LA = np.mean((laregr.predict(X_test)-y_test)**2)
-# # print "Coefficient Values: ", laregr.coef_
-# # print "Number of Coefficients: 13"
-# print "Mean Squared Error: ", MSE_LA
+print "Alpha Value: ", lowest_CV_alpha
+print "Coefficient Values: ", laregr.coef_
+print "Number of Coefficients: 13"
+print "Mean Squared Error: ", MSE_LA
 
 #Principal Components Regression
 from sklearn.decomposition import PCA
