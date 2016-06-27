@@ -74,10 +74,10 @@ laregr = linear_model.Lasso(alpha = 100.2, random_state=0, fit_intercept=False)
 laregr.fit(X_train_scaled,y_train)
 MSE_LA = np.mean((laregr.predict(X_test_scaled)-y_test)**2)
 
-print "Alpha Value: ", lowest_CV_alpha
-print "Coefficient Values: ", laregr.coef_
-print "Number of Coefficients: 13"
-print "Mean Squared Error: ", MSE_LA
+# print "Alpha Value: ", lowest_CV_alpha
+# print "Coefficient Values: ", laregr.coef_
+# print "Number of Coefficients: 13"
+# print "Mean Squared Error: ", MSE_LA
 
 #Principal Components Regression
 from sklearn.decomposition import PCA
@@ -116,25 +116,26 @@ for ax in fig.axes:
 
 # plt.show()
 
-#Based off of the plot, 8 principal components seem to minimize test error.
+#Based off of the plot, 12 principal components seem to minimize test error.
 X_test_scaled = scale(X_test)
-pca_test = PCA(n_components=8)
+pca_test = PCA(n_components=12)
 pca_test.fit(X_test_scaled,y_test)
 X_test_scaled = pca_test.fit_transform(X_test_scaled)
 
 mse = []
 
-for i in np.arange(1,9):
+for i in np.arange(1,13):
     score = -1*cross_validation.cross_val_score(pcrregr, X_test_scaled[:,:i], y_test.ravel(), cv=len(X_test_scaled), scoring='mean_squared_error').mean()
     mse.append(score)
-MSE_PCA = mse[7]
+
+MSE_PCA = mse[11]
 # print "Mean Squared Error: ",MSE_PCA
-#
-# plt.plot([1,2,3,4,5,6,7,8], mse[0:8], '-v')
+
+# plt.plot([1,2,3,4,5,6,7,8,9,10,11,12], mse[0:13], '-v')
 # plt.title('PCA: MSE vs. Principal Components')
 # plt.xlabel('Number of principal components in regression')
 # plt.ylabel('MSE')
-# plt.xlim((-0.2,8.2))
+# plt.xlim((-0.2,13.2))
 # plt.show()
 
 #Partial Least Squares Regression
