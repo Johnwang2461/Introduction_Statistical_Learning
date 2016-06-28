@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE Course_Catalog[
+	<!ELEMENT Course_Catalog (Department*)>
+	<!ELEMENT Department (Title, Chair, Course+)+>
+	<!ATTLIST Department Code CDATA #REQUIRED>
+	<!ELEMENT Chair (Professor)>
+	<!ELEMENT Course (Title, Description*, Instructors+, Prerequisites*)>
+	<!ATTLIST Course Number CDATA #REQUIRED
+                 Enrollment CDATA #IMPLIED>
+	<!ELEMENT Title (#PCDATA)>
+	<!ELEMENT Description (#PCDATA)>
+	<!ELEMENT Instructors (Lecturer | Professor)+>
+	<!ELEMENT Professor (First_Name, Middle_Initial?,Last_Name)>
+	<!ELEMENT Lecturer (First_Name, Middle_Initial?, Last_Name)>
+	<!ELEMENT Prerequisites (Prereq*)>
+	<!ELEMENT Prereq (#PCDATA)>
+	<!ELEMENT First_Name (#PCDATA)>
+	<!ELEMENT Middle_Initial (#PCDATA)>
+	<!ELEMENT Last_Name (#PCDATA)>
+]>
+
+<Course_Catalog>
+	<Department Code="CS">
+		<Title>Computer Science</Title>
+		<Chair>...</Chair>
+		<Course Number="CS106A" Enrollment="1070">...</Course>
+		<Course Number="CS106B" Enrollment="620">...</Course>
+		<Course Number="CS107" Enrollment="500">
+			<Title>Computer Organization and Systems</Title>
+			<Description>...</Description>
+			<Instructors>
+				<Lecturer>
+					<First_Name>Julie</First_Name>
+					<Last_Name>Zelenski</Last_Name>
+				</Lecturer>
+			</Instructors>
+			<Prerequisites>
+				<Prereq>CS106B</Prereq>
+			</Prerequisites>
+		</Course>
+		<Course Number="CS109" Enrollment="280">...</Course>
+		<Course Number="CS124" Enrollment="60">...</Course>
+		<Course Number="CS143" Enrollment="90">...</Course>
+		<Course Number="CS145" Enrollment="130">...</Course>
+		<Course Number="CS221" Enrollment="180">...</Course>
+		<Course Number="CS228" Enrollment="110">...</Course>
+		<Course Number="CS229" Enrollment="320">...</Course>
+	</Department>
+	<Department Code="EE">
+		<Title>Electrical Engineering</Title>
+		<Chair>...</Chair>
+		<Course Number="EE108A">
+			<Title>Digital Systems I</Title>
+			<Description>Digital circuit, logic, and system design.</Description>
+			<Instructors>...</Instructors>
+		</Course>
+		<Course Number="EE108B">
+			<Title>Digital Systems II</Title>
+			<Description>The design of processor-based digital systems.</Description>
+			<Instructors>
+				<Professor>
+					<First_Name>William</First_Name>
+					<Middle_Initial>J.</Middle_Initial>
+					<Last_Name>Dally</Last_Name>
+				</Professor>
+				<Professor>
+					<First_Name>Oyekunle</First_Name>
+					<Last_Name>Olukotun</Last_Name>
+				</Professor>
+			</Instructors>
+			<Prerequisites>
+				<Prereq>EE108A</Prereq>
+				<Prereq>CS106B</Prereq>
+			</Prerequisites>
+		</Course>
+	</Department>
+	<Department Code="LING">
+		<Title>Linguistics</Title>
+		<Chair>
+			<Professor>
+				<First_Name>Beth</First_Name>
+				<Last_Name>Levin</Last_Name>
+			</Professor>
+		</Chair>
+		<Course Number="LING180" Enrollment="60">
+			<Title>From Languages to Information</Title>
+			<Description>
+				Natural language processing. Cross-listed as CS124.
+			</Description>
+			<Instructors>
+				<Professor>
+					<First_Name>Dan</First_Name>
+					<Last_Name>Jurafsky</Last_Name>
+				</Professor>
+			</Instructors>
+			<Prerequisites>
+				<Prereq>CS107</Prereq>
+				<Prereq>CS109</Prereq>
+			</Prerequisites>
+		</Course>
+	</Department>
+</Course_Catalog>
